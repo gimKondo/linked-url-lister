@@ -1,36 +1,36 @@
-# Specification Quality Checklist: URL Crawler for NotebookLM Import
+# 仕様品質チェックリスト: NotebookLMインポート用URLクローラー
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2025-12-10
-**Feature**: [spec.md](../spec.md)
+**目的**: 計画フェーズに進む前に仕様の完全性と品質を検証する
+**作成日**: 2025-12-10
+**機能**: [spec.md](../spec.md)
 
-## Content Quality
+## コンテンツ品質
 
-- [x] CHK001 No implementation details (languages, frameworks, APIs)
-- [x] CHK002 Focused on user value and business needs
-- [x] CHK003 Written for non-technical stakeholders
-- [x] CHK004 All mandatory sections completed
+- [x] CHK001 実装の詳細（言語、フレームワーク、API）が含まれていない
+- [x] CHK002 ユーザー価値とビジネスニーズに焦点を当てている
+- [x] CHK003 非技術者のステークホルダー向けに記述されている
+- [x] CHK004 すべての必須セクションが完成している
 
-## Requirement Completeness
+## 要件の完全性
 
-- [x] CHK005 No [NEEDS CLARIFICATION] markers remain
-- [x] CHK006 Requirements are testable and unambiguous
-- [x] CHK007 Success criteria are measurable
-- [x] CHK008 Success criteria are technology-agnostic (no implementation details)
-- [x] CHK009 All acceptance scenarios are defined
-- [x] CHK010 Edge cases are identified
-- [x] CHK011 Scope is clearly bounded
-- [x] CHK012 Dependencies and assumptions identified
+- [x] CHK005 [要確認]マーカーが残っていない
+- [x] CHK006 要件がテスト可能で曖昧でない
+- [x] CHK007 成功基準が測定可能である
+- [x] CHK008 成功基準が技術非依存である（実装詳細がない）
+- [x] CHK009 すべての受け入れシナリオが定義されている
+- [x] CHK010 エッジケースが特定されている
+- [x] CHK011 スコープが明確に境界付けられている
+- [x] CHK012 依存関係と前提条件が特定されている
 
-## Feature Readiness
+## 機能の準備状況
 
-- [x] CHK013 All functional requirements have clear acceptance criteria
-- [x] CHK014 User scenarios cover primary flows
-- [x] CHK015 Feature meets measurable outcomes defined in Success Criteria
-- [x] CHK016 No implementation details leak into specification
+- [x] CHK013 すべての機能要件に明確な受け入れ基準がある
+- [x] CHK014 ユーザーシナリオが主要フローをカバーしている
+- [x] CHK015 機能が成功基準で定義された測定可能な成果を満たしている
+- [x] CHK016 仕様に実装詳細が漏れていない
 
-## Notes
+## 備考
 
-- All items passed validation
-- Spec is ready for `/speckit.clarify` or `/speckit.plan`
-- Assumptions documented for: network access, HTML content (not SPA), NotebookLM format, text threshold defaults
+- すべての項目が検証に合格
+- 仕様は `/speckit.clarify` または `/speckit.plan` の準備完了
+- 前提条件を文書化: ネットワークアクセス、HTMLコンテンツ（SPAではない）、NotebookLM形式、テキスト閾値のデフォルト

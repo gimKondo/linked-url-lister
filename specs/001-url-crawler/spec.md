@@ -1,107 +1,107 @@
-# Feature Specification: URL Crawler for NotebookLM Import
+# 機能仕様書: NotebookLMインポート用URLクローラー
 
-**Feature Branch**: `001-url-crawler`
-**Created**: 2025-12-10
-**Status**: Draft
-**Input**: Web crawler to list URLs under a specified website for NotebookLM import
+**機能ブランチ**: `001-url-crawler`
+**作成日**: 2025-12-10
+**ステータス**: ドラフト
+**概要**: 指定したWebサイト配下のURLをリストアップし、NotebookLMへのインポートを可能にする
 
-## User Scenarios & Testing *(mandatory)*
+## ユーザーシナリオとテスト *(必須)*
 
-### User Story 1 - Basic URL Crawling (Priority: P1)
+### ユーザーストーリー1 - 基本的なURLクロール (優先度: P1)
 
-A user wants to extract all relevant page URLs from a documentation website (e.g., GitLab Handbook) to import into NotebookLM for analysis. The user provides a starting URL and receives a list of all discoverable pages that contain meaningful text content.
+ユーザーはドキュメントサイト（例: GitLab Handbook）から関連するすべてのページURLを抽出し、NotebookLMで分析したいと考えています。開始URLを指定すると、十分なテキストコンテンツを含む発見可能なすべてのページのリストを取得できます。
 
-**Why this priority**: This is the core functionality of the tool. Without basic crawling, the tool has no value.
+**この優先度の理由**: これはツールの中核機能です。基本的なクロール機能がなければ、ツールとしての価値がありません。
 
-**Independent Test**: Can be fully tested by running the tool against a small test website with known link structure and verifying the output contains expected URLs.
+**独立テスト**: 既知のリンク構造を持つ小規模なテストサイトに対してツールを実行し、出力に期待されるURLが含まれていることを確認することで完全にテストできます。
 
-**Acceptance Scenarios**:
+**受け入れシナリオ**:
 
-1. **Given** a valid URL to a documentation site, **When** the user runs the tool with that URL, **Then** the tool outputs a list of URLs that are linked from the starting page
-2. **Given** a URL with nested pages (e.g., /docs/guide/chapter1), **When** the tool crawls, **Then** it discovers and lists pages in subdirectories of the starting URL
-3. **Given** pages with varying amounts of text, **When** the tool filters results, **Then** only pages with substantial text content (default: 500+ characters) are included
-
----
-
-### User Story 2 - Output for NotebookLM (Priority: P2)
-
-A user wants to copy the URL list directly into NotebookLM's import interface. The output format must be compatible with NotebookLM's URL input requirements.
-
-**Why this priority**: Output formatting is essential for the stated purpose but depends on basic crawling working first.
-
-**Independent Test**: Can be tested by verifying output format matches NotebookLM's expected input (one URL per line, valid absolute URLs).
-
-**Acceptance Scenarios**:
-
-1. **Given** a completed crawl, **When** the user views the output, **Then** each URL appears on its own line
-2. **Given** a completed crawl, **When** the output is pasted into NotebookLM, **Then** NotebookLM accepts all URLs without format errors
-3. **Given** a large site with many pages, **When** the user requests JSON output format, **Then** the tool outputs URLs in a structured JSON array
+1. **前提** ドキュメントサイトの有効なURLがある場合、**操作** ユーザーがそのURLでツールを実行すると、**結果** 開始ページからリンクされているURLのリストが出力される
+2. **前提** ネストされたページを持つURL（例: /docs/guide/chapter1）がある場合、**操作** ツールがクロールすると、**結果** 開始URLのサブディレクトリにあるページが発見・リストアップされる
+3. **前提** テキスト量が異なる複数のページがある場合、**操作** ツールが結果をフィルタリングすると、**結果** 十分なテキストコンテンツを持つページのみが含まれる（デフォルト: 500文字以上）
 
 ---
 
-### User Story 3 - Crawl Control (Priority: P3)
+### ユーザーストーリー2 - NotebookLM用の出力 (優先度: P2)
 
-A user wants to control crawl behavior to limit scope, avoid overloading servers, or focus on specific sections of a site.
+ユーザーはURLリストをNotebookLMのインポートインターフェースに直接コピーしたいと考えています。出力形式はNotebookLMのURL入力要件と互換性がある必要があります。
 
-**Why this priority**: Control features improve usability but are not essential for basic operation.
+**この優先度の理由**: 出力フォーマットは目的達成に不可欠ですが、まず基本的なクロール機能が動作する必要があります。
 
-**Independent Test**: Can be tested by running crawls with different options and verifying behavior changes accordingly.
+**独立テスト**: 出力形式がNotebookLMの期待する入力（1行に1URL、有効な絶対URL）と一致することを確認することでテストできます。
 
-**Acceptance Scenarios**:
+**受け入れシナリオ**:
 
-1. **Given** a maximum depth option, **When** the user specifies --max-depth=2, **Then** the tool only follows links up to 2 levels deep from the starting URL
-2. **Given** a minimum text length option, **When** the user specifies --min-text=1000, **Then** only pages with 1000+ characters of text are included
-3. **Given** a rate limit concern, **When** the tool crawls, **Then** it respects a configurable delay between requests (default: 100ms)
+1. **前提** クロールが完了した場合、**操作** ユーザーが出力を確認すると、**結果** 各URLが独立した行に表示される
+2. **前提** クロールが完了した場合、**操作** 出力をNotebookLMに貼り付けると、**結果** NotebookLMがフォーマットエラーなくすべてのURLを受け入れる
+3. **前提** 多くのページを持つ大規模サイトの場合、**操作** ユーザーがJSON出力形式を要求すると、**結果** ツールがURLを構造化されたJSON配列で出力する
 
 ---
 
-### Edge Cases
+### ユーザーストーリー3 - クロール制御 (優先度: P3)
 
-- What happens when the starting URL returns a 404 or other error? → Tool reports error and exits with non-zero status
-- What happens when a page requires authentication? → Tool skips the page and continues crawling accessible pages
-- What happens when the site has circular links? → Tool tracks visited URLs and avoids revisiting
-- What happens when the site has thousands of pages? → Tool provides progress output to stderr; user can set max-pages limit
-- What happens when robots.txt disallows crawling? → Tool respects robots.txt by default (can be overridden with flag)
+ユーザーはクロール動作を制御して、スコープを制限したり、サーバーへの過負荷を避けたり、サイトの特定セクションに焦点を当てたいと考えています。
 
-## Requirements *(mandatory)*
+**この優先度の理由**: 制御機能は使いやすさを向上させますが、基本動作には必須ではありません。
 
-### Functional Requirements
+**独立テスト**: 異なるオプションでクロールを実行し、動作が適切に変化することを確認することでテストできます。
 
-- **FR-001**: System MUST accept a starting URL as a command-line argument
-- **FR-002**: System MUST discover URLs by following links from the starting page
-- **FR-003**: System MUST recursively crawl pages that are under the same URL path prefix as the starting URL
-- **FR-004**: System MUST filter out pages that require authentication (non-200 responses, login redirects)
-- **FR-005**: System MUST filter out pages with insufficient text content (configurable threshold, default 500 characters)
-- **FR-006**: System MUST output discovered URLs to stdout (one per line by default)
-- **FR-007**: System MUST track visited URLs to avoid infinite loops from circular links
-- **FR-008**: System MUST respect robots.txt directives by default
-- **FR-009**: System MUST support JSON output format via --json flag
-- **FR-010**: System MUST support configurable maximum crawl depth via --max-depth flag
-- **FR-011**: System MUST support configurable minimum text length via --min-text flag
-- **FR-012**: System MUST support configurable request delay via --delay flag
-- **FR-013**: System MUST output progress information to stderr during crawl
-- **FR-014**: System MUST handle network errors gracefully and continue crawling other pages
+**受け入れシナリオ**:
 
-### Key Entities
+1. **前提** 最大深度オプションがある場合、**操作** ユーザーが--max-depth=2を指定すると、**結果** ツールは開始URLから2階層までのリンクのみを追跡する
+2. **前提** 最小テキスト長オプションがある場合、**操作** ユーザーが--min-text=1000を指定すると、**結果** 1000文字以上のテキストを持つページのみが含まれる
+3. **前提** レート制限の懸念がある場合、**操作** ツールがクロールすると、**結果** 設定可能なリクエスト間隔を遵守する（デフォルト: 100ms）
 
-- **URL**: A web page address to be crawled or output; attributes include absolute URL string, crawl depth, and discovery status
-- **Page**: A fetched web resource; attributes include URL, HTTP status, text content length, and list of extracted links
-- **CrawlResult**: The final output; a collection of URLs that passed all filters (path prefix, authentication, text content)
+---
 
-## Success Criteria *(mandatory)*
+### エッジケース
 
-### Measurable Outcomes
+- 開始URLが404やその他のエラーを返した場合 → ツールはエラーを報告し、非ゼロのステータスで終了する
+- ページが認証を必要とする場合 → ツールはそのページをスキップし、アクセス可能なページのクロールを継続する
+- サイトに循環リンクがある場合 → ツールは訪問済みURLを追跡し、再訪問を回避する
+- サイトに数千のページがある場合 → ツールは進捗情報をstderrに出力する。ユーザーは最大ページ数制限を設定可能
+- robots.txtがクロールを禁止している場合 → ツールはデフォルトでrobots.txtを尊重する（フラグでオーバーライド可能）
 
-- **SC-001**: Users can obtain a complete URL list from a 100-page documentation site in under 5 minutes
-- **SC-002**: 100% of output URLs are accessible without authentication when manually verified
-- **SC-003**: 95% of output URLs contain the minimum specified text content when manually verified
-- **SC-004**: Output can be directly pasted into NotebookLM without manual reformatting
-- **SC-005**: Tool completes crawl of GitLab Handbook (https://handbook.gitlab.com/) top-level sections successfully
+## 要件 *(必須)*
 
-## Assumptions
+### 機能要件
 
-- Users have network access to the target websites
-- Target websites serve HTML content (not JavaScript-only SPAs that require browser rendering)
-- NotebookLM accepts plain text URL lists (one URL per line) as input
-- A reasonable default for "substantial text content" is 500 characters of visible text
-- Default request delay of 100ms provides reasonable balance between speed and server courtesy
+- **FR-001**: システムはコマンドライン引数として開始URLを受け付けなければならない
+- **FR-002**: システムは開始ページからリンクを辿ってURLを発見しなければならない
+- **FR-003**: システムは開始URLと同じURLパスプレフィックス配下のページを再帰的にクロールしなければならない
+- **FR-004**: システムは認証が必要なページ（非200レスポンス、ログインリダイレクト）を除外しなければならない
+- **FR-005**: システムはテキストコンテンツが不十分なページを除外しなければならない（設定可能な閾値、デフォルト500文字）
+- **FR-006**: システムは発見したURLをstdoutに出力しなければならない（デフォルトは1行に1URL）
+- **FR-007**: システムは訪問済みURLを追跡し、循環リンクによる無限ループを回避しなければならない
+- **FR-008**: システムはデフォルトでrobots.txtディレクティブを尊重しなければならない
+- **FR-009**: システムは--jsonフラグによるJSON出力形式をサポートしなければならない
+- **FR-010**: システムは--max-depthフラグによる最大クロール深度の設定をサポートしなければならない
+- **FR-011**: システムは--min-textフラグによる最小テキスト長の設定をサポートしなければならない
+- **FR-012**: システムは--delayフラグによるリクエスト間隔の設定をサポートしなければならない
+- **FR-013**: システムはクロール中に進捗情報をstderrに出力しなければならない
+- **FR-014**: システムはネットワークエラーを適切に処理し、他のページのクロールを継続しなければならない
+
+### 主要エンティティ
+
+- **URL**: クロールまたは出力対象のWebページアドレス。属性には絶対URL文字列、クロール深度、発見ステータスを含む
+- **Page**: 取得したWebリソース。属性にはURL、HTTPステータス、テキストコンテンツ長、抽出されたリンクのリストを含む
+- **CrawlResult**: 最終出力。すべてのフィルター（パスプレフィックス、認証、テキストコンテンツ）を通過したURLのコレクション
+
+## 成功基準 *(必須)*
+
+### 測定可能な成果
+
+- **SC-001**: ユーザーは100ページのドキュメントサイトから5分以内に完全なURLリストを取得できる
+- **SC-002**: 手動検証時、出力URLの100%が認証なしでアクセス可能である
+- **SC-003**: 手動検証時、出力URLの95%が指定された最小テキストコンテンツを含んでいる
+- **SC-004**: 出力は手動での再フォーマットなしにNotebookLMに直接貼り付けできる
+- **SC-005**: ツールはGitLab Handbook (https://handbook.gitlab.com/) のトップレベルセクションのクロールを正常に完了できる
+
+## 前提条件
+
+- ユーザーは対象Webサイトへのネットワークアクセスを持っている
+- 対象Webサイトは静的HTMLコンテンツを提供する（ブラウザレンダリングが必要なJavaScriptのみのSPAではない）
+- NotebookLMはプレーンテキストのURLリスト（1行に1URL）を入力として受け付ける
+- 「十分なテキストコンテンツ」のデフォルトは可視テキスト500文字とする
+- デフォルトのリクエスト間隔100msは、速度とサーバーへの配慮のバランスが取れている
