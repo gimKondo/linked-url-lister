@@ -2,6 +2,7 @@ package filter
 
 import (
 	"net/url"
+	"path"
 	"strings"
 )
 
@@ -19,11 +20,20 @@ func NormalizeURL(baseURL *url.URL, href string) (*url.URL, error) {
 	// フラグメントを除去
 	resolved.Fragment = ""
 
-	// トレイリングスラッシュを正規化（ディレクトリの場合）
-	// ただし、ファイル拡張子がある場合はスラッシュを追加しない
-	if !strings.Contains(resolved.Path, ".") && !strings.HasSuffix(resolved.Path, "/") && resolved.Path != "" {
-		// パスがディレクトリの可能性がある場合、スラッシュは追加しない
-		// サーバーの応答に依存するため、そのまま
+	// クエリパラメータを除去（同一ページの重複防止）
+	resolved.RawQuery = ""
+
+	// パス正規化: 連続スラッシュとドットセグメントを解決
+	resolved.Path = path.Clean(resolved.Path)
+
+	// 空パス処理: 空または"."を"/"に変換
+	if resolved.Path == "" || resolved.Path == "." {
+		resolved.Path = "/"
+	}
+
+	// トレイリングスラッシュ除去: ルートパス"/"以外で末尾の"/"を除去
+	if resolved.Path != "/" {
+		resolved.Path = strings.TrimSuffix(resolved.Path, "/")
 	}
 
 	return resolved, nil
