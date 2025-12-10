@@ -40,9 +40,10 @@ func New(config *CrawlConfig) *Crawler {
 func (c *Crawler) Run() (*CrawlResult, error) {
 	startTime := time.Now()
 
-	// 開始URLをキューに追加
+	// 開始URLを正規化してキューに追加
+	normalizedStartURL := normalizeStartURL(c.config.StartURL)
 	c.queue = append(c.queue, &CrawlURL{
-		URL:       c.config.StartURL,
+		URL:       normalizedStartURL,
 		Depth:     0,
 		SourceURL: "",
 	})
@@ -205,5 +206,24 @@ func (c *Crawler) addLinksToQueue(current *CrawlURL, links []string) {
 func (c *Crawler) isAllowedByRobots(u *url.URL) bool {
 	robotsTxt, _ := c.robotsFetcher.Fetch(u.Host, u.Scheme)
 	return robotsTxt.IsAllowed(u.Path)
+}
+
+// normalizeStartURL は開始URLを正規化する（クエリパラメータ除去、トレイリングスラッシュ統一）
+func normalizeStartURL(u *url.URL) *url.URL {
+	normalized := *u // コピーを作成
+	normalized.Fragment = ""
+	normalized.RawQuery = ""
+
+	// パス正規化
+	if normalized.Path == "" {
+		normalized.Path = "/"
+	} else if normalized.Path != "/" {
+		// トレイリングスラッシュを除去（ルートパス以外）
+		for len(normalized.Path) > 1 && normalized.Path[len(normalized.Path)-1] == '/' {
+			normalized.Path = normalized.Path[:len(normalized.Path)-1]
+		}
+	}
+
+	return &normalized
 }
 
